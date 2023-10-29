@@ -1,0 +1,10 @@
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  show-actuator: true
+server:
+  servlet:
+    context-path: /customer-service
+spring:
+  application:
+    name: customer-service

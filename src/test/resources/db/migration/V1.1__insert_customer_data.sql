@@ -1,0 +1,10 @@
+INSERT INTO customer (customer_name, email, phone) VALUES ('John Doe', 'john.doe@example.com', '+1 (123) 456-7890');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Jane Doe', 'jane.doe@example.com', '+1 (987) 654-3210');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Peter Parker', 'peter.parker@example.com', '+1 (555) 121-2121');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Mary Jane Watson', 'mary.jane.watson@example.com', '+1 (555) 321-1212');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Bruce Wayne', 'bruce.wayne@example.com', '+1 (555) 555-5555');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Clark Kent', 'clark.kent@example.com', '+1 (555) 777-7777');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Diana Prince', 'diana.prince@example.com', '+1 (555) 999-9999');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Barry Allen', 'barry.allen@example.com', '+1 (555) 432-1234');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Hal Jordan', 'hal.jordan@example.com', '+1 (555) 987-6543');
+INSERT INTO customer (customer_name, email, phone) VALUES ('Arthur Curry', 'arthur.curry@example.com', '+1 (555) 321-6543');
