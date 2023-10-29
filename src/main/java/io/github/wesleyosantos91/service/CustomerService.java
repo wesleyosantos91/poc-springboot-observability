@@ -3,13 +3,20 @@ package io.github.wesleyosantos91.service;
 import io.github.wesleyosantos91.domain.entity.CustomerEntity;
 import io.github.wesleyosantos91.domain.request.CustomerRequest;
 import io.github.wesleyosantos91.domain.response.CustomerResponse;
+import io.github.wesleyosantos91.exception.core.DatabaseException;
 import io.github.wesleyosantos91.exception.core.ObjectNotFoundException;
 import io.github.wesleyosantos91.mapper.CustomerMapper;
+import io.github.wesleyosantos91.metric.annotations.CountExecution;
 import io.github.wesleyosantos91.repository.CustomerRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,12 +44,21 @@ public class CustomerService {
         return mapper.parseResponse(exist(id));
     }
 
+    @CountExecution(successCounter = "customers_saved_success",
+                    successTags = {"action:save", "entity:customer"},
+                    errorCounter = "customers_not_saved_for_error",
+                    errorTags = {"action:save", "entity:customer"})
     @Transactional
     public CustomerResponse save(CustomerRequest request) {
-        log.info("Saving customer with request: {}", request);
-        CustomerEntity entity = mapper.parseEntity(request);
-        entity = this.repository.save(entity);
-        return mapper.parseResponse(entity);
+        try {
+            log.info("Saving customer with request: {}", request);
+            CustomerEntity entity = mapper.parseEntity(request);
+            entity = this.repository.save(entity);
+            return mapper.parseResponse(entity);
+        } catch (DataIntegrityViolationException e) {
+            log.error("error: {}", ExceptionUtils.getRootCauseMessage(e));
+            throw new DatabaseException(ExceptionUtils.getRootCause(e).getMessage());
+        }
     }
 
     @Transactional

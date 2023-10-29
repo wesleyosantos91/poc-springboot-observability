@@ -1,6 +1,7 @@
 package io.github.wesleyosantos91.exception.handler;
 
 import io.github.wesleyosantos91.domain.response.ErrorResponse;
+import io.github.wesleyosantos91.exception.core.DatabaseException;
 import io.github.wesleyosantos91.exception.core.ObjectNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -39,5 +40,14 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Resource not found");
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<ProblemDetail> handleSQLIntegrityConstraintViolationException(DatabaseException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setTitle("SQL integrity constraint violation");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 }

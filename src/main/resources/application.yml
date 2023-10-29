@@ -27,6 +27,18 @@ springdoc:
     path: /swagger-ui.html
   show-actuator: true
 management:
+  metrics:
+    tags:
+      application: customer-service
+    enable:
+      jvm: true
+    distribution:
+      slo:
+        http:
+          - 50ms
+          - 100ms
+          - 200ms
+          - 300ms
   info:
     env:
       enabled: true
@@ -41,6 +53,10 @@ management:
           - health
           - metrics
           - prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 info:
   app:
     name: @project.artifactId@
