@@ -7,9 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CountExecution {
-    String successCounter();
-    String errorCounter();
-    String[] successTags() default {};
-    String[] errorTags() default {};
+public @interface CounterExecution {
+
+    String name();
 }

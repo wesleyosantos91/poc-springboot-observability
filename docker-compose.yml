@@ -1,8 +1,8 @@
 version: "3.9"
 services:
-  mysqldb:
+  mysql:
     image: mysql:latest
-    container_name: mysqldb
+    container_name: mysql
     restart: unless-stopped
     ports:
       - "3306:3306"
@@ -11,5 +11,12 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=dev
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 volumes:
   mysql:

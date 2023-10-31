@@ -6,11 +6,10 @@ import io.github.wesleyosantos91.domain.response.CustomerResponse;
 import io.github.wesleyosantos91.exception.core.DatabaseException;
 import io.github.wesleyosantos91.exception.core.ObjectNotFoundException;
 import io.github.wesleyosantos91.mapper.CustomerMapper;
-import io.github.wesleyosantos91.metric.annotations.CountExecution;
+import io.github.wesleyosantos91.metric.annotations.CounterExecution;
+import io.github.wesleyosantos91.metric.annotations.TimerExecution;
 import io.github.wesleyosantos91.repository.CustomerRepository;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import jakarta.annotation.PostConstruct;
+import io.micrometer.core.annotation.Counted;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -44,10 +43,9 @@ public class CustomerService {
         return mapper.parseResponse(exist(id));
     }
 
-    @CountExecution(successCounter = "customers_saved_success",
-                    successTags = {"action:save", "entity:customer"},
-                    errorCounter = "customers_not_saved_for_error",
-                    errorTags = {"action:save", "entity:customer"})
+    @Counted
+    @CounterExecution(name = "customers_counter_saved")
+    @TimerExecution(name =   "customers_timer_saved")
     @Transactional
     public CustomerResponse save(CustomerRequest request) {
         try {
