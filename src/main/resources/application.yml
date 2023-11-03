@@ -27,6 +27,9 @@ springdoc:
     path: /swagger-ui.html
   show-actuator: true
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   metrics:
     tags:
       application: customer-service
@@ -57,6 +60,9 @@ management:
     metrics:
       export:
         enabled: true
+  otlp:
+    tracing:
+      endpoint: ${TRACING_URL}
 info:
   app:
     name: @project.artifactId@

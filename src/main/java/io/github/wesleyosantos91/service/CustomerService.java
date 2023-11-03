@@ -6,10 +6,12 @@ import io.github.wesleyosantos91.domain.response.CustomerResponse;
 import io.github.wesleyosantos91.exception.core.DatabaseException;
 import io.github.wesleyosantos91.exception.core.ObjectNotFoundException;
 import io.github.wesleyosantos91.mapper.CustomerMapper;
-import io.github.wesleyosantos91.metric.annotations.CounterExecution;
-import io.github.wesleyosantos91.metric.annotations.TimerExecution;
+import io.github.wesleyosantos91.metric.annotation.CounterExecution;
+import io.github.wesleyosantos91.metric.annotation.TimerExecution;
 import io.github.wesleyosantos91.repository.CustomerRepository;
-import io.micrometer.core.annotation.Counted;
+import io.micrometer.tracing.annotation.ContinueSpan;
+import io.micrometer.tracing.annotation.NewSpan;
+import io.micrometer.tracing.annotation.SpanTag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -31,19 +33,29 @@ public class CustomerService {
     private final CustomerRepository repository;
     private final CustomerMapper mapper;
 
+    @NewSpan
     public Page<CustomerResponse> findAllPage(Pageable pageable) {
-        log.info("Finding all customers with page: {}", pageable);
-        final Page<CustomerEntity> pages = repository.findAll(pageable);
+        try {
+            log.info("Finding all customers with page: {}", pageable);
+            final Page<CustomerEntity> pages = repository.findAll(pageable);
 
-        return mapper.parserToPageResponse(pages);
+            return mapper.parserToPageResponse(pages);
+        } catch (DataIntegrityViolationException e) {
+            log.error("error: {}", ExceptionUtils.getRootCauseMessage(e));
+            throw new DatabaseException(ExceptionUtils.getRootCause(e).getMessage());
+        }
     }
 
-    public CustomerResponse findById(Long id){
-        log.info("Finding customer with ID: {}", id);
-        return mapper.parseResponse(exist(id));
+    public CustomerResponse findById(Long id) {
+        try {
+            log.info("Finding customer with ID: {}", id);
+            return mapper.parseResponse(exist(id));
+        } catch (DataIntegrityViolationException e) {
+            log.error("error: {}", ExceptionUtils.getRootCauseMessage(e));
+            throw new DatabaseException(ExceptionUtils.getRootCause(e).getMessage());
+        }
     }
 
-    @Counted
     @CounterExecution(name = "customers_counter_saved")
     @TimerExecution(name =   "customers_timer_saved")
     @Transactional
@@ -61,22 +73,37 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponse update(Long id, CustomerRequest request) {
-        log.info("Updating customer with ID: {} and request: {}", id, request);
-        CustomerEntity customer = exist(id);
-        BeanUtils.copyProperties(request, customer, "id");
-        customer = this.repository.save(customer);
-        return mapper.parseResponse(customer);
+        try {
+            log.info("Updating customer with ID: {} and request: {}", id, request);
+            CustomerEntity customer = exist(id);
+            BeanUtils.copyProperties(request, customer, "id");
+            customer = this.repository.save(customer);
+            return mapper.parseResponse(customer);
+        } catch (DataIntegrityViolationException e) {
+            log.error("error: {}", ExceptionUtils.getRootCauseMessage(e));
+            throw new DatabaseException(ExceptionUtils.getRootCause(e).getMessage());
+        }
     }
 
     @Transactional
     public void delete(Long id) {
-        log.info("Deleting customer with ID: {}", id);
-        CustomerEntity customer = exist(id);
-        repository.delete(customer);
+        try {
+            log.info("Deleting customer with ID: {}", id);
+            CustomerEntity customer = exist(id);
+            repository.delete(customer);
+        } catch (DataIntegrityViolationException e) {
+            log.error("error: {}", ExceptionUtils.getRootCauseMessage(e));
+            throw new DatabaseException(ExceptionUtils.getRootCause(e).getMessage());
+        }
     }
 
     private CustomerEntity exist(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException(MessageFormat.format("Not found Customer with code {0}", id)));
+        try {
+            return repository.findById(id)
+                    .orElseThrow(() -> new ObjectNotFoundException(MessageFormat.format("Not found Customer with code {0}", id)));
+        } catch (DataIntegrityViolationException e) {
+            log.error("error: {}", ExceptionUtils.getRootCauseMessage(e));
+            throw new DatabaseException(ExceptionUtils.getRootCause(e).getMessage());
+        }
     }
 }
